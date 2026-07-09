@@ -1,0 +1,23 @@
+{
+  "name": "cappymesh",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CappyMesh turns photos into production-ready 3D assets.",
+  "workspaces": [
+    "apps/web",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "lint:web": "npm --workspace apps/web run lint",
+    "typecheck:web": "npm --workspace apps/web run typecheck",
+    "dev:api": "python3 -m uvicorn app.main:app --reload --app-dir apps/api --port 8000",
+    "mock:worker": "python3 workers/gpu/mock_worker.py",
+    "sam3d:worker": "python3 workers/gpu/sam3d_runner.py"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1",
+    "pngjs": "^7.0.0"
+  }
+}
