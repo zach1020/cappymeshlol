@@ -88,8 +88,8 @@ activate_mamba() {
   mkdir -p "$MAMBA_ROOT_PREFIX"
   set +u
   eval "$(micromamba shell hook --shell bash)"
-  set -u
   micromamba activate "$ENV_NAME"
+  set -u
 }
 
 install_system_packages() {
