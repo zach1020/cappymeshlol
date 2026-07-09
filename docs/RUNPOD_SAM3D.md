@@ -14,16 +14,20 @@ Use:
 
 - Product: Pods
 - Cloud: Secure Cloud if you want a network volume
-- GPU: A40 48 GB, RTX A6000 48 GB, A100 40/80 GB, or better
+- GPU: RTX PRO 6000 96 GB is a strong first choice. A40 48 GB, RTX A6000 48 GB, A100 40/80 GB, or better should also work.
 - Template: RunPod PyTorch CUDA template
 - Disk/volume: 80-120 GB minimum; 150+ GB is more comfortable
 - Persistent path: `/workspace`
 
 Network volumes are useful because RunPod mounts them at `/workspace` for Pods, so downloaded checkpoints survive Pod replacement.
 
+RTX PRO 6000 note: the 96 GB VRAM gives us much more room than the SAM 3D minimum, but because this is a newer Blackwell GPU, the first setup check should confirm the Pod template has a recent NVIDIA driver and CUDA/PyTorch can see the device. The bootstrap prints `nvidia-smi`, `torch.cuda.is_available()`, and the GPU name for this reason.
+
 ## One-command Pod setup
 
-SSH into the Pod. If this repo is already on GitHub, clone it first:
+Important: run the SAM 3D bootstrap inside the RunPod terminal, not on your Mac. Your Mac can package/upload code, but the install needs RunPod's Linux NVIDIA environment.
+
+If this repo is already on GitHub, clone it inside the RunPod terminal:
 
 ```bash
 cd /workspace

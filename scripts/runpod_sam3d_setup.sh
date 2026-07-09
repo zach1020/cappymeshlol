@@ -20,6 +20,43 @@ warn() {
   printf "\n!! %s\n" "$*" >&2
 }
 
+require_linux_pod() {
+  local kernel
+  kernel="$(uname -s)"
+  if [ "$kernel" != "Linux" ]; then
+    cat >&2 <<EOF
+
+This bootstrap must run inside your RunPod Linux Pod, not on your Mac.
+
+On your Mac, run:
+  ./scripts/mac_make_runpod_bundle.sh
+
+Then upload the generated .tar.gz from dist/ to RunPod's /workspace folder.
+Inside the RunPod terminal, run:
+  cd /workspace
+  mkdir -p cappymesh
+  tar -xzf cappymesh-runpod-*.tar.gz -C cappymesh
+  cd /workspace/cappymesh
+  read -s HF_TOKEN
+  export HF_TOKEN
+  chmod +x scripts/runpod_sam3d_setup.sh
+  WORKSPACE=/workspace ./scripts/runpod_sam3d_setup.sh
+
+EOF
+    exit 1
+  fi
+
+  if ! command -v apt-get >/dev/null 2>&1; then
+    cat >&2 <<EOF
+
+This script expects a Debian/Ubuntu-style RunPod image with apt-get.
+Pick a RunPod PyTorch CUDA Ubuntu template, then rerun it inside that Pod.
+
+EOF
+    exit 1
+  fi
+}
+
 as_root() {
   if [ "$(id -u)" -eq 0 ]; then
     "$@"
@@ -227,6 +264,8 @@ run_optional_test() {
 }
 
 main() {
+  require_linux_pod
+
   log "CappyMesh RunPod SAM 3D bootstrap"
   echo "WORKSPACE=$WORKSPACE"
   echo "SAM3D_DIR=$SAM3D_DIR"
