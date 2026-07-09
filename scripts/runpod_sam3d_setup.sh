@@ -8,10 +8,13 @@ ENV_NAME="${ENV_NAME:-sam3d-objects}"
 MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-$WORKSPACE/micromamba}"
 CHECKPOINT_TAG="${CHECKPOINT_TAG:-hf}"
 HF_REPO="${HF_REPO:-facebook/sam-3d-objects}"
+INSTALL_DEV_EXTRAS="${INSTALL_DEV_EXTRAS:-0}"
 RUN_TEST="${RUN_TEST:-0}"
 TEST_IMAGE="${TEST_IMAGE:-}"
 TEST_MASK="${TEST_MASK:-}"
 TEST_OUT="${TEST_OUT:-$WORKSPACE/cappymesh-runs/bootstrap-test}"
+TMPDIR="${TMPDIR:-$WORKSPACE/tmp}"
+PIP_CACHE_DIR="${PIP_CACHE_DIR:-$WORKSPACE/pip-cache}"
 
 log() {
   printf "\n==> %s\n" "$*"
@@ -136,8 +139,17 @@ install_sam3d_python_deps() {
   activate_mamba
   cd "$SAM3D_DIR"
 
+  mkdir -p "$TMPDIR" "$PIP_CACHE_DIR"
+  export TMPDIR PIP_CACHE_DIR
+  pip install --upgrade pip setuptools wheel
+
   export PIP_EXTRA_INDEX_URL="https://pypi.ngc.nvidia.com https://download.pytorch.org/whl/cu121"
-  pip install -e '.[dev]'
+  if [ "$INSTALL_DEV_EXTRAS" = "1" ]; then
+    pip install -e '.[dev]'
+  else
+    echo "Skipping .[dev] extras. Set INSTALL_DEV_EXTRAS=1 if you need SAM 3D development dependencies."
+  fi
+
   pip install -e '.[p3d]'
 
   export PIP_FIND_LINKS="https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.5.1_cu121.html"
