@@ -5,6 +5,7 @@ WORKSPACE="${WORKSPACE:-/workspace}"
 SAM3D_DIR="${SAM3D_DIR:-$WORKSPACE/sam-3d-objects}"
 CAPPY_DIR="${CAPPY_DIR:-$WORKSPACE/cappymesh}"
 ENV_NAME="${ENV_NAME:-sam3d-objects}"
+MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-$WORKSPACE/micromamba}"
 CHECKPOINT_TAG="${CHECKPOINT_TAG:-hf}"
 HF_REPO="${HF_REPO:-facebook/sam-3d-objects}"
 RUN_TEST="${RUN_TEST:-0}"
@@ -83,7 +84,11 @@ EOF
 }
 
 activate_mamba() {
+  export MAMBA_ROOT_PREFIX
+  mkdir -p "$MAMBA_ROOT_PREFIX"
+  set +u
   eval "$(micromamba shell hook --shell bash)"
+  set -u
   micromamba activate "$ENV_NAME"
 }
 
@@ -117,6 +122,8 @@ clone_sam3d() {
 
 create_environment() {
   log "Creating or reusing micromamba env: $ENV_NAME"
+  export MAMBA_ROOT_PREFIX
+  mkdir -p "$MAMBA_ROOT_PREFIX"
   if micromamba env list | awk '{print $1}' | grep -qx "$ENV_NAME"; then
     echo "Environment already exists."
   else
@@ -271,6 +278,7 @@ main() {
   echo "SAM3D_DIR=$SAM3D_DIR"
   echo "CAPPY_DIR=$CAPPY_DIR"
   echo "ENV_NAME=$ENV_NAME"
+  echo "MAMBA_ROOT_PREFIX=$MAMBA_ROOT_PREFIX"
 
   install_system_packages
   ensure_micromamba
